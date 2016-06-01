@@ -8,6 +8,8 @@ use Thruster\Component\EventLoop\Timer;
 use Thruster\Component\MysqlClient\Exception\ConnectionException;
 use Thruster\Component\MysqlClient\Exception\QueryException;
 use Thruster\Component\Promise\Deferred;
+use Thruster\Component\Promise\ExtendedPromiseInterface;
+use Thruster\Component\Promise\FulfilledPromise;
 use Thruster\Component\Promise\RejectedPromise;
 
 /**
@@ -34,7 +36,7 @@ class Client
         $this->connectionPool = $connectionPool;
     }
 
-    public function query($sql)
+    public function query($sql) : ExtendedPromiseInterface
     {
         return $this->connectionPool->getConnection()->then(
             function (mysqli $connection) use ($sql) {
@@ -77,6 +79,19 @@ class Client
                 });
 
                 return $deferred->promise();
+            }
+        );
+    }
+
+    public function escape($input) : ExtendedPromiseInterface
+    {
+        return $this->connectionPool->getConnection()->then(
+            function (mysqli $connection) use ($input) {
+                $result = $connection->real_escape_string($input);
+
+                $this->connectionPool->freeConnection($connection);
+
+                return new FulfilledPromise($result);
             }
         );
     }
