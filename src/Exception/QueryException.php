@@ -12,4 +12,15 @@ use Exception;
  */
 class QueryException extends Exception
 {
+    public static function create(string $message, int $code)
+    {
+        switch ($code) {
+            case 1062:
+                return new RecordDuplicateException($message);
+                break;
+
+            default:
+                return new static($message, $code);
+        }
+    }
 }

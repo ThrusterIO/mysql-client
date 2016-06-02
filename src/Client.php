@@ -63,12 +63,12 @@ class Client
                             $result = $connection->reap_async_query();
 
                             if (false === $result) {
-                                $deferred->reject(new QueryException($connection->error, $connection->errno));
+                                $deferred->reject(QueryException::create($connection->error, $connection->errno));
                             } else {
                                 $deferred->resolve($result);
                             }
                         } elseif ($error) {
-                            $deferred->reject(new QueryException($connection->error, $connection->errno));
+                            $deferred->reject(QueryException::create($connection->error, $connection->errno));
                         } else {
                             $deferred->reject(new QueryException('Query was rejected'));
                         }
